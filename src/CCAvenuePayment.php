@@ -263,10 +263,10 @@ class CCAvenuePayment
 
     private function getMerchantData( )
     {
-        $merchant_data= 'Merchant_Id='.urlencode($this->getMerchantId());
-        $merchant_data .= '&Amount='.urlencode($this->getAmount());
-        $merchant_data .= '&Order_Id='.urlencode($this->getOrderId());
-        $merchant_data .= '&Redirect_Url='.urlencode($this->getRedirectUrl());
+        $merchant_data= 'merchant_id='.urlencode($this->getMerchantId());
+        $merchant_data .= '&amount='.urlencode($this->getAmount());
+        $merchant_data .= '&order_id='.urlencode($this->getOrderId());
+        $merchant_data .= '&redirect_url='.urlencode($this->getRedirectUrl());
         $merchant_data .= '&billing_cust_name='.urlencode($this->getBillingName());
         $merchant_data .= '&billing_cust_address='.urlencode($this->getBillingAddress());
         $merchant_data .= '&billing_cust_country='.urlencode($this->getBillingCountry());
@@ -300,7 +300,7 @@ class CCAvenuePayment
         $resonse_data = $utils->decrypt($response, $this->getWorkingKey());
 
         $orderStatus = "";
-        $decryptValues = explode('&', $rcvdString);
+        $decryptValues = explode('&', $response_data);
         $dataSize = sizeof($decryptValues);
     
         for($i = 0; $i < $dataSize; $i++)  {
