@@ -1,325 +1,459 @@
-<?php 
+<?php
 
 namespace Samdoit\CCAvenue;
 
-use Samdoit\CCAvenue\Utils;
+use InvalidArgumentException;
 
 /**
  * CCAvenue Laravel Wrapper Class
- *
- * This class is used to interface with Laravel and CCAvenue
  *
  * @package    Samdoit\CCAvenue
  * @subpackage API
  * @author     Samdoit Infotech <info@samdoit.com>
  */
-class CCAvenuePayment
+class CCAvenuePayment // NOSONAR
 {
-    private $working_key;
-    private $merchant_id;
-    private $access_code;
-    private $amount;
-    private $order_id;
-    private $url;
-    private $billing_name;
-    private $billing_address;
-    private $billing_country;
-    private $billing_state;
-    private $billing_city;
-    private $billing_zip;
-    private $billing_tel;
-    private $billing_email;
-    private $delivery_name;
-    private $delivery_address;
-    private $delivery_country;
-    private $delivery_state;
-    private $delivery_city;
-    private $delivery_zip;
-    private $delivery_tel;
-    private $billing_notes;
+    /** @var string */
+    private $workingKey;
 
-    public function __construct( )
+    /** @var string */
+    private $merchantId;
+
+    /** @var string */
+    private $accessCode;
+
+    /** @var string */
+    private $amount = '';
+
+    /** @var string */
+    private $currency = 'INR';
+
+    /** @var string */
+    private $language = 'EN';
+
+    /** @var string */
+    private $orderId = '';
+
+    /** @var string */
+    private $url = '';
+
+    /** @var string */
+    private $cancelUrl = '';
+
+    /** @var string */
+    private $billingName = '';
+
+    /** @var string */
+    private $billingAddress = '';
+
+    /** @var string */
+    private $billingCountry = '';
+
+    /** @var string */
+    private $billingState = '';
+
+    /** @var string */
+    private $billingCity = '';
+
+    /** @var string */
+    private $billingZip = '';
+
+    /** @var string */
+    private $billingTel = '';
+
+    /** @var string */
+    private $billingEmail = '';
+
+    /** @var string */
+    private $deliveryName = '';
+
+    /** @var string */
+    private $deliveryAddress = '';
+
+    /** @var string */
+    private $deliveryCountry = '';
+
+    /** @var string */
+    private $deliveryState = '';
+
+    /** @var string */
+    private $deliveryCity = '';
+
+    /** @var string */
+    private $deliveryZip = '';
+
+    /** @var string */
+    private $deliveryTel = '';
+
+    /** @var string */
+    private $deliveryEmail = '';
+
+    /** @var string */
+    private $billingNotes = '';
+
+    public function __construct()
     {
-        $this->merchant_id = config('ccavenue.merchant_id');
-        $this->working_key = config('ccavenue.working_key');
-        $this->access_code = config('ccavenue.access_code');
+        $this->merchantId = (string) config('ccavenue.merchant_id');
+        $this->workingKey = (string) config('ccavenue.working_key');
+        $this->accessCode = (string) config('ccavenue.access_code');
     }
 
-    public function getWorkingKey()
+    public function getWorkingKey(): string
     {
-        return $this->working_key;
+        return $this->workingKey;
     }
 
-    public function getMerchantId()
+    public function getMerchantId(): string
     {
-        return $this->merchant_id;
+        return $this->merchantId;
     }
 
-    public function getAccessCode()
+    public function getAccessCode(): string
     {
-        return $this->access_code;
+        return $this->accessCode;
     }
 
-    public function setAmount( $amount )
+    public function setAmount(string $amount): void
     {
         $this->amount = $amount;
     }
 
-    public function getAmount()
+    public function getAmount(): string
     {
         return $this->amount;
     }
 
-    public function setOrderId( $order_id )
+    public function setCurrency(string $currency): void
     {
-        $this->order_id = $order_id;
+        $this->currency = $currency;
     }
 
-    public function getOrderId()
+    public function getCurrency(): string
     {
-        return $this->order_id;
+        return $this->currency;
     }
 
-    public function setRedirectUrl( $url )
+    public function setLanguage(string $language): void
+    {
+        $this->language = $language;
+    }
+
+    public function getLanguage(): string
+    {
+        return $this->language;
+    }
+
+    public function setOrderId(string $orderId): void
+    {
+        $this->orderId = $orderId;
+    }
+
+    public function getOrderId(): string
+    {
+        return $this->orderId;
+    }
+
+    public function setRedirectUrl(string $url): void
     {
         $this->url = $url;
     }
 
-    public function getRedirectUrl()
+    public function getRedirectUrl(): string
     {
         return $this->url;
     }
 
-    public function setBillingName( $billing_name )
+    public function setCancelUrl(string $cancelUrl): void
     {
-        $this->billing_name = $billing_name;
+        $this->cancelUrl = $cancelUrl;
     }
 
-    public function getBillingName()
+    /**
+     * Falls back to the redirect URL when no cancel URL is set.
+     */
+    public function getCancelUrl(): string
     {
-        return $this->billing_name;
+        return $this->cancelUrl !== '' ? $this->cancelUrl : $this->url;
     }
 
-    public function setBillingAddress( $billing_address )
+    public function setBillingName(string $billingName): void
     {
-        $this->billing_address = $billing_address;
+        $this->billingName = $billingName;
     }
 
-    public function getBillingAddress()
+    public function getBillingName(): string
     {
-        return $this->billing_address;
+        return $this->billingName;
     }
 
-    public function setBillingCountry( $billing_country )
+    public function setBillingAddress(string $billingAddress): void
     {
-        $this->billing_country = $billing_country;
+        $this->billingAddress = $billingAddress;
     }
 
-    public function getBillingCountry()
+    public function getBillingAddress(): string
     {
-        return $this->billing_country;
+        return $this->billingAddress;
     }
 
-    public function setBillingState( $billing_state )
+    public function setBillingCountry(string $billingCountry): void
     {
-        $this->billing_state = $billing_state;
+        $this->billingCountry = $billingCountry;
     }
 
-    public function getBillingState()
+    public function getBillingCountry(): string
     {
-        return $this->billing_state;
+        return $this->billingCountry;
     }
 
-    public function setBillingCity( $billing_city )
+    public function setBillingState(string $billingState): void
     {
-        $this->billing_city = $billing_city;
+        $this->billingState = $billingState;
     }
 
-    public function getBillingCity()
+    public function getBillingState(): string
     {
-        return $this->billing_city;
+        return $this->billingState;
     }
 
-    public function setBillingZip( $billing_zip )
+    public function setBillingCity(string $billingCity): void
     {
-        $this->billing_zip = $billing_zip;
+        $this->billingCity = $billingCity;
     }
 
-    public function getBillingZip()
+    public function getBillingCity(): string
     {
-        return $this->billing_zip;
+        return $this->billingCity;
     }
 
-    public function setBillingTel( $billing_tel )
+    public function setBillingZip(string $billingZip): void
     {
-        $this->billing_tel = $billing_tel;
+        $this->billingZip = $billingZip;
     }
 
-    public function getBillingTel()
+    public function getBillingZip(): string
     {
-        return $this->billing_tel;
+        return $this->billingZip;
     }
 
-    public function setBillingEmail( $billing_email )
+    public function setBillingTel(string $billingTel): void
     {
-        $this->billing_email = $billing_email;
+        $this->billingTel = $billingTel;
     }
 
-    public function getBillingEmail()
+    public function getBillingTel(): string
     {
-        return $this->billing_email;
+        return $this->billingTel;
     }
 
-    public function setDeliveryName( $delivery_name )
+    public function setBillingEmail(string $billingEmail): void
     {
-        $this->delivery_name = $delivery_name;
+        $this->billingEmail = $billingEmail;
     }
 
-    public function getDeliveryName()
+    public function getBillingEmail(): string
     {
-        return $this->delivery_name;
+        return $this->billingEmail;
     }
 
-    public function setDeliveryAddress( $delivery_address )
+    public function setDeliveryName(string $deliveryName): void
     {
-        $this->delivery_address = $delivery_address;
+        $this->deliveryName = $deliveryName;
     }
 
-    public function getDeliveryAddress()
+    public function getDeliveryName(): string
     {
-        return $this->delivery_address;
+        return $this->deliveryName;
     }
 
-    public function setDeliveryCountry( $delivery_country )
+    public function setDeliveryAddress(string $deliveryAddress): void
     {
-        $this->delivery_country = $delivery_country;
+        $this->deliveryAddress = $deliveryAddress;
     }
 
-    public function getDeliveryCountry()
+    public function getDeliveryAddress(): string
     {
-        return $this->delivery_country;
+        return $this->deliveryAddress;
     }
 
-    public function setDeliveryState( $delivery_state )
+    public function setDeliveryCountry(string $deliveryCountry): void
     {
-        $this->delivery_state = $delivery_state;
+        $this->deliveryCountry = $deliveryCountry;
     }
 
-    public function getDeliveryState()
+    public function getDeliveryCountry(): string
     {
-        return $this->delivery_state;
+        return $this->deliveryCountry;
     }
 
-    public function setDeliveryCity( $delivery_city )
+    public function setDeliveryState(string $deliveryState): void
     {
-        $this->delivery_city = $delivery_city;
+        $this->deliveryState = $deliveryState;
     }
 
-    public function getDeliveryCity()
+    public function getDeliveryState(): string
     {
-        return $this->delivery_city;
+        return $this->deliveryState;
     }
 
-    public function setDeliveryZip( $delivery_zip )
+    public function setDeliveryCity(string $deliveryCity): void
     {
-        $this->delivery_zip = $delivery_zip;
+        $this->deliveryCity = $deliveryCity;
     }
 
-    public function getDeliveryZip()
+    public function getDeliveryCity(): string
     {
-        return $this->delivery_zip;
+        return $this->deliveryCity;
     }
 
-    public function setDeliveryTel( $delivery_tel )
+    public function setDeliveryZip(string $deliveryZip): void
     {
-        $this->delivery_tel = $delivery_tel;
+        $this->deliveryZip = $deliveryZip;
     }
 
-    public function getDeliveryTel()
+    public function getDeliveryZip(): string
     {
-        return $this->delivery_tel;
+        return $this->deliveryZip;
     }
 
-    public function setBillingNotes( $billing_notes )
+    public function setDeliveryTel(string $deliveryTel): void
     {
-        $this->billing_notes = $billing_notes;
+        $this->deliveryTel = $deliveryTel;
     }
 
-    public function getBillingNotes()
+    public function getDeliveryTel(): string
     {
-        return $this->billing_notes;
+        return $this->deliveryTel;
     }
 
-    public function billingSameAsShipping()
+    /**
+     * CCAvenue has no delivery email field, so this value is not sent.
+     */
+    public function setDeliveryEmail(string $deliveryEmail): void
     {
-        $this->delivery_name = $this->billing_name;
-        $this->delivery_address = $this->billing_address;
-        $this->delivery_country = $this->billing_country;
-        $this->delivery_state = $this->billing_state;
-        $this->delivery_city = $this->billing_city;
-        $this->delivery_zip = $this->billing_zip;
-        $this->delivery_tel = $this->billing_tel;
+        $this->deliveryEmail = $deliveryEmail;
     }
 
-    private function getMerchantData( )
+    public function getDeliveryEmail(): string
     {
-        $merchant_data= 'Merchant_Id='.urlencode($this->getMerchantId());
-        $merchant_data .= '&Amount='.urlencode($this->getAmount());
-        $merchant_data .= '&Order_Id='.urlencode($this->getOrderId());
-        $merchant_data .= '&Redirect_Url='.urlencode($this->getRedirectUrl());
-        $merchant_data .= '&billing_cust_name='.urlencode($this->getBillingName());
-        $merchant_data .= '&billing_cust_address='.urlencode($this->getBillingAddress());
-        $merchant_data .= '&billing_cust_country='.urlencode($this->getBillingCountry());
-        $merchant_data .= '&billing_cust_state='.urlencode($this->getBillingState());
-        $merchant_data .= '&billing_cust_city='.urlencode($this->getBillingCity());
-        $merchant_data .= '&billing_zip_code='.urlencode($this->getBillingZip());
-        $merchant_data .= '&billing_cust_tel='.urlencode($this->getBillingTel());
-        $merchant_data .= '&billing_cust_email='.urlencode($this->getBillingEmail());
-        $merchant_data .= '&delivery_cust_name='.urlencode($this->getDeliveryName());
-        $merchant_data .= '&delivery_cust_address='.urlencode($this->getDeliveryAddress());
-        $merchant_data .= '&delivery_cust_country='.urlencode($this->getDeliveryCountry());
-        $merchant_data .= '&delivery_cust_state='.urlencode($this->getDeliveryState());
-        $merchant_data .= '&delivery_cust_city='.urlencode($this->getDeliveryCity());
-        $merchant_data .= '&delivery_zip_code='.urlencode($this->getDeliveryZip());
-        $merchant_data .= '&delivery_cust_tel='.urlencode($this->getDeliveryTel());
-        $merchant_data .= '&billing_cust_notes='.urlencode($this->getBillingNotes());
-
-        return $merchant_data;
+        return $this->deliveryEmail;
     }
 
-    public function getEncryptedData()
+    /**
+     * Sent to CCAvenue as merchant_param1 and returned unchanged in the response.
+     */
+    public function setBillingNotes(string $billingNotes): void
     {
-        $utils = new Utils($this);
-        $merchant_data = $this->getMerchantData();
-        return $utils->encrypt($merchant_data, $this->getWorkingKey());
+        $this->billingNotes = $billingNotes;
     }
 
-    public function response($response)
+    public function getBillingNotes(): string
     {
-        $utils = new Utils($this);
-        $resonse_data = $utils->decrypt($response, $this->getWorkingKey());
+        return $this->billingNotes;
+    }
 
-        $orderStatus = "";
-        $decryptValues = explode('&', $rcvdString);
-        $dataSize = sizeof($decryptValues);
-    
-        for($i = 0; $i < $dataSize; $i++)  {
-            $information = explode('=', $decryptValues[$i]);
-            if ($i==3) {
-                $order_status = $information[1];
-            }
+    public function billingSameAsShipping(): void
+    {
+        $this->deliveryName    = $this->billingName;
+        $this->deliveryAddress = $this->billingAddress;
+        $this->deliveryCountry = $this->billingCountry;
+        $this->deliveryState   = $this->billingState;
+        $this->deliveryCity    = $this->billingCity;
+        $this->deliveryZip     = $this->billingZip;
+        $this->deliveryTel     = $this->billingTel;
+        $this->deliveryEmail   = $this->billingEmail;
+    }
+
+    /**
+     * @throws InvalidArgumentException When a required field is missing
+     */
+    private function getMerchantData(): string
+    {
+        $required = [
+            'merchant_id'  => $this->getMerchantId(),
+            'order_id'     => $this->getOrderId(),
+            'amount'       => $this->getAmount(),
+            'currency'     => $this->getCurrency(),
+            'redirect_url' => $this->getRedirectUrl(),
+            'cancel_url'   => $this->getCancelUrl(),
+            'language'     => $this->getLanguage(),
+        ];
+
+        $missing = array_keys(array_filter($required, function ($value) {
+            return $value === '';
+        }));
+        if ($missing !== []) {
+            throw new InvalidArgumentException('Missing required CCAvenue fields: ' . implode(', ', $missing));
         }
-        $return['dataSize'] = $dataSize;
-        $return['decryptValues'] = $decryptValues;
-        if($orderStatus === "Success") {
-            $return['status'] = "success";
-        } else if($orderStatus === "Aborted") {
-            $return['status'] = "pending";
-        } else if($orderStatus === "Failure") {
-            $return['status'] = "declined";
+
+        $optional = array_filter([
+            'billing_name'     => $this->getBillingName(),
+            'billing_address'  => $this->getBillingAddress(),
+            'billing_city'     => $this->getBillingCity(),
+            'billing_state'    => $this->getBillingState(),
+            'billing_zip'      => $this->getBillingZip(),
+            'billing_country'  => $this->getBillingCountry(),
+            'billing_tel'      => $this->getBillingTel(),
+            'billing_email'    => $this->getBillingEmail(),
+            'delivery_name'    => $this->getDeliveryName(),
+            'delivery_address' => $this->getDeliveryAddress(),
+            'delivery_city'    => $this->getDeliveryCity(),
+            'delivery_state'   => $this->getDeliveryState(),
+            'delivery_zip'     => $this->getDeliveryZip(),
+            'delivery_country' => $this->getDeliveryCountry(),
+            'delivery_tel'     => $this->getDeliveryTel(),
+            'merchant_param1'  => $this->getBillingNotes(),
+        ], function ($value) {
+            return $value !== '';
+        });
+
+        return http_build_query($required + $optional);
+    }
+
+    public function getEncryptedData(): string
+    {
+        if ($this->getWorkingKey() === '') {
+            throw new InvalidArgumentException('CCAvenue working key is not configured (CCAVENUE_WORKING_KEY).');
+        }
+
+        $utils = new Utils();
+        return $utils->encrypt($this->getMerchantData(), $this->getWorkingKey());
+    }
+
+    /**
+     * @return array{status: string, orderStatus: string, data: array<string, string>, dataSize: int, decryptValues: string[]}
+     */
+    public function response(string $encryptedResponse): array
+    {
+        $utils = new Utils();
+        $responseData = $utils->decrypt($encryptedResponse, $this->getWorkingKey());
+
+        $decryptValues = $responseData === '' ? [] : explode('&', $responseData);
+
+        $data = [];
+        foreach ($decryptValues as $pair) {
+            $parts = explode('=', $pair, 2);
+            $data[urldecode($parts[0])] = urldecode($parts[1] ?? '');
+        }
+
+        $orderStatus = $data['order_status'] ?? '';
+
+        if ($orderStatus === 'Success') {
+            $status = 'success';
+        } elseif ($orderStatus === 'Aborted') {
+            $status = 'pending';
+        } elseif ($orderStatus === 'Failure') {
+            $status = 'declined';
         } else {
-            $return['status'] = "error";
+            $status = 'error';
         }
-        return $return;
-    } 
+
+        return [
+            'status'        => $status,
+            'orderStatus'   => $orderStatus,
+            'data'          => $data,
+            'dataSize'      => count($decryptValues),
+            'decryptValues' => $decryptValues,
+        ];
+    }
 }

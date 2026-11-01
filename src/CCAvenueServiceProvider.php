@@ -15,7 +15,8 @@ class CCAvenueServiceProvider extends ServiceProvider
         $this->publishes(
             [
             __DIR__.'/config/ccavenue.php' => config_path('ccavenue.php'),
-            ]
+            ],
+            'ccavenue-config'
         );
     }
 
@@ -26,6 +27,6 @@ class CCAvenueServiceProvider extends ServiceProvider
      */
     public function register()
     {
-
+        $this->mergeConfigFrom(__DIR__.'/config/ccavenue.php', 'ccavenue');
     }
 }

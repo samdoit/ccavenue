@@ -5,50 +5,32 @@ namespace Samdoit\CCAvenue;
 class Utils
 {
     /**
-     * @param1 $plainText Plain String
-     * @param2 $key Working key provided by CCAvenue
-     * 
-     * @return Decrypted String
+     * @param string $plainText Plain string to encrypt
+     * @param string $key Working key provided by CCAvenue
+     * @return string Encrypted hex string
      */
-    function encrypt($plainText, $key)
+    public function encrypt(string $plainText, string $key): string
     {
-        $key = $this->hextobin(md5($key));
-        $initVector = pack("C*", 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f);
-        $openMode = openssl_encrypt($plainText, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $initVector);
-        $encryptedText = bin2hex($openMode);
-        return $encryptedText;
+        $derivedKey = hex2bin(md5($key)); // NOSONAR — CCAvenue API requires MD5 key derivation
+        $initVector = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"; // NOSONAR
+        $encrypted = openssl_encrypt($plainText, 'AES-128-CBC', $derivedKey, OPENSSL_RAW_DATA, $initVector);
+        return bin2hex($encrypted);
     }
 
     /**
-     * @param1 Encrypted String
-     * @param2 Working key provided by CCAvenue
-     * 
-     * @return Plain String
+     * @param string $encryptedText Encrypted hex string
+     * @param string $key Working key provided by CCAvenue
+     * @return string Decrypted plain string
      */
-    function decrypt($encryptedText,$key)
+    public function decrypt(string $encryptedText, string $key): string
     {
-        $key = $this->hextobin(md5($key));
-        $initVector = pack("C*", 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f);
-        $encryptedText = $this->hextobin($encryptedText);
-        $decryptedText = openssl_decrypt($encryptedText, 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $initVector);
-        return $decryptedText;        
-    }
-
-    function hextobin($hexString) 
-    {
-        $length = strlen($hexString); 
-        $binString = "";
-        $count = 0; 
-        while ($count<$length) {
-            $subString =substr($hexString, $count, 2);           
-            $packedString = pack("H*", $subString); 
-            if ($count==0) {
-                $binString=$packedString;
-            } else {
-                $binString.=$packedString;
-            }
-            $count+=2; 
+        $derivedKey = hex2bin(md5($key)); // NOSONAR — CCAvenue API requires MD5 key derivation
+        $initVector = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"; // NOSONAR
+        $encryptedText = trim($encryptedText);
+        if ($encryptedText === '' || strlen($encryptedText) % 2 !== 0 || !ctype_xdigit($encryptedText)) {
+            return '';
         }
-        return $binString;
+        $decoded = hex2bin($encryptedText);
+        return (string) openssl_decrypt($decoded, 'AES-128-CBC', $derivedKey, OPENSSL_RAW_DATA, $initVector);
     }
 }

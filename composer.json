@@ -10,17 +10,22 @@
             "email": "info@samdoit.com"
         }
     ],
-    "suggest": {
-        "ext-mcrypt": "Required for most features of CCAvenue"
-    },
     "require": {
-        "php": ">=7.1"
+        "php": ">=7.1",
+        "ext-openssl": "*"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "Samdoit\\CCAvenue\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Samdoit\\CCAvenue\\CCAvenueServiceProvider"
+            ]
         }
     }
 }
