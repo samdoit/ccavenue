@@ -1,7 +1,7 @@
 {
     "name": "samdoit/ccavenue",
     "description": "CCAvenue Payment Gateway PHP Library",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "license": "MIT",
     "keywords": ["ccavenue", "php", "library", "payment gateway"],
     "authors": [
